@@ -44,20 +44,6 @@
             font-size: 1.1rem;
         }
 
-        .api-setup {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px;
-            text-align: center;
-        }
-
-        .api-setup input {
-            width: 300px;
-            margin: 10px;
-        }
-
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -122,12 +108,6 @@
             transform: translateY(0);
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .network-container {
             flex: 1;
             position: relative;
@@ -186,24 +166,6 @@
             opacity: 0.7;
         }
 
-        .status-message {
-            background: rgba(78, 205, 196, 0.1);
-            border: 1px solid rgba(78, 205, 196, 0.3);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            text-align: center;
-        }
-
-        .error-message {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            text-align: center;
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -236,10 +198,6 @@
             #network {
                 height: 50vh;
             }
-
-            .api-setup input {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -247,14 +205,6 @@
     <div class="header">
         <h1>British Jazz Network</h1>
         <p class="subtitle">Exploring collaborations in contemporary British jazz</p>
-    </div>
-
-    <div class="api-setup">
-        <h3>🎵 Connect to Live Music Data</h3>
-        <p>Enter your Discogs API token to fetch real collaboration data</p>
-        <input type="password" id="apiToken" placeholder="Enter your Discogs API token">
-        <button id="saveToken">Save Token</button>
-        <div id="apiStatus"></div>
     </div>
 
     <div class="controls">
@@ -269,10 +219,6 @@
                 <option value="kokoroko">Kokoroko</option>
                 <option value="theon-cross">Theon Cross</option>
                 <option value="joe-armon-jones">Joe Armon-Jones</option>
-                <option value="steam-down">Steam Down</option>
-                <option value="binker-moses">Binker and Moses</option>
-                <option value="alfa-mist">Alfa Mist</option>
-                <option value="yussef-dayes">Yussef Dayes</option>
             </select>
         </div>
 
@@ -303,12 +249,11 @@
         <div id="defaultInfo">
             <h3>Welcome to the British Jazz Network Visualiser</h3>
             <p>Select an artist above and click "Generate Network" to explore their collaborations. Click on any node in the network to see detailed information about that artist and their connections.</p>
-            <p><strong>Getting Started:</strong></p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>Get a free Discogs API token at <a href="https://www.discogs.com/settings/developers" target="_blank" style="color: #ffd700;">discogs.com/settings/developers</a></li>
-                <li>Enter your token above to connect to live music data</li>
-                <li>Or use the demo with sample data (no token required)</li>
-            </ul>
+           
+           
+           
+           
+            <p><strong>Note:</strong> This demo uses sample data. To connect to the real Discogs API, you'll need to register for an API key and implement the authentication.</p>
         </div>
         
         <div id="artistInfo" class="artist-info">
@@ -319,459 +264,272 @@
     </div>
 
     <script>
-        // Sample data as fallback when API is not available
-        const fallbackData = {
-            'shabaka-hutchings': {
-                name: 'Shabaka Hutchings',
-                collaborations: [
-                    { artist: 'Sons of Kemet', type: 'band-member', album: 'Your Queen Is a Reptile' },
-                    { artist: 'The Comet Is Coming', type: 'band-member', album: 'Trust in the Lifeforce of the Deep Mystery' },
-                    { artist: 'Nubya Garcia', type: 'performer', album: 'Source' },
-                    { artist: 'Moses Boyd', type: 'performer', album: 'Dark Matter' },
-                    { artist: 'Kamaal Williams', type: 'collaborator', album: 'The Return' }
-                ]
-            },
-            'nubya-garcia': {
-                name: 'Nubya Garcia',
-                collaborations: [
-                    { artist: 'Shabaka Hutchings', type: 'performer', album: 'Source' },
-                    { artist: 'Joe Armon-Jones', type: 'performer', album: 'Starting Today' },
-                    { artist: 'Ezra Collective', type: 'guest', album: 'You Cant Steal My Joy' },
-                    { artist: 'Moses Boyd', type: 'performer', album: 'Dark Matter' },
-                    { artist: 'Kokoroko', type: 'collaborator', album: 'Could We Be More' }
-                ]
-            },
-            'moses-boyd': {
-                name: 'Moses Boyd',
-                collaborations: [
-                    { artist: 'Shabaka Hutchings', type: 'performer', album: 'Dark Matter' },
-                    { artist: 'Nubya Garcia', type: 'performer', album: 'Source' },
-                    { artist: 'Zara McFarlane', type: 'producer', album: 'Songs of an Unknown Tongue' },
-                    { artist: 'Binker and Moses', type: 'band-member', album: 'Dem Ones' },
-                    { artist: 'Theon Cross', type: 'collaborator', album: 'Fyah' }
-                ]
-            },
-            'kamaal-williams': {
-                name: 'Kamaal Williams',
-                collaborations: [
-                    { artist: 'Yussef Kamaal', type: 'band-member', album: 'Black Focus' },
-                    { artist: 'Shabaka Hutchings', type: 'collaborator', album: 'The Return' },
-                    { artist: 'Joe Armon-Jones', type: 'collaborator', album: 'Starting Today' },
-                    { artist: 'Wu-Lu', type: 'producer', album: 'LOGGERHEAD' }
-                ]
-            },
-            'ezra-collective': {
-                name: 'Ezra Collective',
-                collaborations: [
-                    { artist: 'Nubya Garcia', type: 'guest', album: 'You Cant Steal My Joy' },
-                    { artist: 'Loyle Carner', type: 'collaborator', album: 'Yesterday\'s Gone' },
-                    { artist: 'Jorja Smith', type: 'backing-band', album: 'Lost & Found' },
-                    { artist: 'Steam Down', type: 'collective-member', album: 'Five Fruit' }
-                ]
-            },
-            'kokoroko': {
-                name: 'Kokoroko',
-                collaborations: [
-                    { artist: 'Nubya Garcia', type: 'collaborator', album: 'Could We Be More' },
-                    { artist: 'Steam Down', type: 'collective-member', album: 'Five Fruit' },
-                    { artist: 'Ezra Collective', type: 'peer-group', album: 'Jazz Re:freshed Compilation' }
-                ]
-            },
-            'theon-cross': {
-                name: 'Theon Cross',
-                collaborations: [
-                    { artist: 'Sons of Kemet', type: 'band-member', album: 'Your Queen Is a Reptile' },
-                    { artist: 'Moses Boyd', type: 'collaborator', album: 'Fyah' },
-                    { artist: 'Kassa Overall', type: 'guest', album: 'Animals' },
-                    { artist: 'Shabaka Hutchings', type: 'band-mate', album: 'Black to Comm' }
-                ]
-            },
-            'joe-armon-jones': {
-                name: 'Joe Armon-Jones',
-                collaborations: [
-                    { artist: 'Nubya Garcia', type: 'performer', album: 'Starting Today' },
-                    { artist: 'Kamaal Williams', type: 'collaborator', album: 'The Return' },
-                    { artist: 'Ezra Collective', type: 'session-musician', album: 'You Cant Steal My Joy' },
-                    { artist: 'Steam Down', type: 'collective-member', album: 'Five Fruit' }
-                ]
-            },
-            'steam-down': {
-                name: 'Steam Down',
-                collaborations: [
-                    { artist: 'Kokoroko', type: 'collective-member', album: 'Five Fruit' },
-                    { artist: 'Ezra Collective', type: 'peer-group', album: 'Jazz Re:freshed' }
-                ]
-            },
-            'binker-moses': {
-                name: 'Binker and Moses',
-                collaborations: [
-                    { artist: 'Moses Boyd', type: 'band-member', album: 'Dem Ones' }
-                ]
-            },
-            'alfa-mist': {
-                name: 'Alfa Mist',
-                collaborations: [
-                    { artist: 'Jordan Rakei', type: 'collaborator', album: 'Antiphon' }
-                ]
-            },
-            'yussef-dayes': {
-                name: 'Yussef Dayes',
-                collaborations: [
-                    { artist: 'Alfa Mist', type: 'collaborator', album: 'The Return' }
-                ]
-            }
-        };
+        // Sample data representing British jazz artists and their collaborations
+    
+        let sampleData = {}; // We'll populate this from the API
 
-        let sampleData = {}; // Will be populated from API or fallback
-        let network = null;
-        let currentData = null;
-        let apiToken = null;
-        let useRealAPI = false;
-
-        // API Integration Functions
+        // Fetch artist data from Discogs API
         async function fetchArtistData(artistName) {
-            if (!apiToken) {
-                return fallbackData[artistName.toLowerCase().replace(/\s+/g, '-')] || 
-                       { name: artistName, collaborations: [] };
-            }
+            const token = 'hQvleGVekSqiFHtECISKuDNpqYWiJEemmBUDuCXS'; // Replace with your token
 
             try {
-                showStatusMessage('Searching for ' + artistName, 'status');
-                
-                // Search for the artist
+                // Search for the artist (note the backticks for template literals)
                 const searchResponse = await fetch(
-                    `https://api.discogs.com/database/search?q=${encodeURIComponent(artistName)}&type=artist&token=${apiToken}`
+                    `https://api.discogs.com/database/search?q=${encodeURIComponent(artistName)}&type=artist`, {
+                        headers: {
+                            'Authorization': `Discogs token=${token}`
+                        }
+                    }
                 );
                 const searchData = await searchResponse.json();
-                
+
                 if (searchData.results && searchData.results.length > 0) {
                     const artistId = searchData.results[0].id;
-                    
-                    showStatusMessage('Found artist, fetching releases...', 'status');
-                    
+
                     // Get artist's releases
                     const releasesResponse = await fetch(
-                        `https://api.discogs.com/artists/${artistId}/releases?per_page=20&token=${apiToken}`
+                        `https://api.discogs.com/artists/${artistId}/releases?per_page=20`, {
+                            headers: {
+                                'Authorization': `Discogs token=${token}`
+                            }
+                        }
                     );
                     const releasesData = await releasesResponse.json();
-                    
+
                     return {
                         name: artistName,
-                        collaborations: await extractCollaborations(releasesData.releases || [], apiToken)
+                        collaborations: await extractCollaborations(releasesData.releases, token, artistName)
                     };
-                } else {
-                    showStatusMessage('No results found for ' + artistName, 'error');
-                    return { name: artistName, collaborations: [] };
                 }
             } catch (error) {
                 console.log('Error fetching data:', error);
-                showStatusMessage('API Error: ' + error.message, 'error');
-                // Fallback to sample data
-                return fallbackData[artistName.toLowerCase().replace(/\s+/g, '-')] || 
-                       { name: artistName, collaborations: [] };
+                return { name: artistName, collaborations: [] };
             }
         }
 
-        async function extractCollaborations(releases, token) {
+        // Extract collaborations from releases
+        async function extractCollaborations(releases, token, originalArtistName) {
             const collaborations = [];
-            
-            showStatusMessage('Processing releases...', 'status');
-            
+
             // Process first 5 releases to avoid rate limits
             for (let i = 0; i < Math.min(releases.length, 5); i++) {
                 try {
                     const releaseResponse = await fetch(
-                        `https://api.discogs.com/releases/${releases[i].id}?token=${token}`
+                        `https://api.discogs.com/releases/${releases[i].id}`, {
+                            headers: {
+                                'Authorization': `Discogs token=${token}`
+                            }
+                        }
                     );
                     const releaseData = await releaseResponse.json();
-                    
-                    if (releaseData.artists && isBritishJazz(releaseData)) {
+
+                    if (releaseData.artists) {
                         releaseData.artists.forEach(artist => {
-                            if (artist.name !== releases[i].artist) {
+                            if (artist.name.toLowerCase() !== originalArtistName.toLowerCase()) {
                                 collaborations.push({
                                     artist: artist.name,
-                                    type: 'performer',
-                                    album: releaseData.title
+                                    type: 'performer'
                                 });
                             }
                         });
                     }
-                    
-                    // Small delay to respect rate limits
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                } catch (error) {
-                    console.log('Error processing release:', error);
+
+                    if (releaseData.extraartists) {
+                        releaseData.extraartists.forEach(extra => {
+                            if (extra.name.toLowerCase() !== originalArtistName.toLowerCase()) {
+                                collaborations.push({
+                                    artist: extra.name,
+                                    type: extra.role ? extra.role.toLowerCase() : 'other'
+                                });
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.log('Error fetching release data:', err);
                 }
             }
-            
             return collaborations;
         }
 
-        function isBritishJazz(release) {
-            const britishLabels = ['Brownswood', 'Jazz Re:freshed', 'On the Corner', 'Warp Records'];
-            const jazzGenres = ['Jazz', 'Nu Jazz', 'Spiritual Jazz', 'UK Jazz'];
-            
-            const hasLabel = release.labels?.some(label => 
-                britishLabels.some(british => label.name.includes(british))
-            );
-            
-            const hasGenre = release.genres?.some(genre => 
-                jazzGenres.includes(genre)
-            );
-            
-            return hasLabel || hasGenre || (release.year && release.year >= 2010);
+        async function generateNetwork() {
+            const artistSelect = document.getElementById('artistSelect');
+            const roleFilter = document.getElementById('roleFilter').value;
+            const degree = parseInt(document.getElementById('degreeSlider').value);
+
+            const seedArtist = artistSelect.options[artistSelect.selectedIndex].text;
+            document.getElementById('defaultInfo').style.display = 'none';
+            document.getElementById('artistInfo').classList.remove('active');
+
+            // Loading message
+            const networkContainer = document.getElementById('network');
+            networkContainer.innerHTML = '<div class="loading">Loading network...</div>';
+
+            sampleData = {}; // reset sample data
+            await buildNetworkData(seedArtist, roleFilter, degree);
+
+            updateNetwork(sampleData);
         }
 
-        function showStatusMessage(message, type) {
-            const statusDiv = document.getElementById('apiStatus');
-            statusDiv.className = type === 'error' ? 'error-message' : 'status-message';
-            statusDiv.textContent = message;
-            
-            // Clear status after 3 seconds
-            setTimeout(() => {
-                statusDiv.textContent = '';
-                statusDiv.className = '';
-            }, 3000);
+        async function buildNetworkData(artistName, roleFilter, degree, currentDegree = 0, visited = new Set()) {
+            if (currentDegree > degree || visited.has(artistName.toLowerCase())) {
+                return;
+            }
+
+            visited.add(artistName.toLowerCase());
+
+            if (!sampleData[artistName]) {
+                const artistData = await fetchArtistData(artistName);
+                sampleData[artistName] = artistData;
+            }
+
+            if (!sampleData.nodes) sampleData.nodes = [];
+            if (!sampleData.edges) sampleData.edges = [];
+
+            // Add the artist node if not already added
+            if (!sampleData.nodes.find(node => node.id === artistName)) {
+                sampleData.nodes.push({ id: artistName, label: artistName });
+            }
+
+            for (const collab of sampleData[artistName].collaborations) {
+                if (roleFilter !== 'all' && collab.type !== roleFilter) {
+                    continue;
+                }
+
+                // Add collaborator node
+                if (!sampleData.nodes.find(node => node.id === collab.artist)) {
+                    sampleData.nodes.push({ id: collab.artist, label: collab.artist });
+                }
+
+                // Add edge between artist and collaborator
+                sampleData.edges.push({ from: artistName, to: collab.artist, label: collab.type });
+
+                // Recursively add collaborators of collaborators
+                await buildNetworkData(collab.artist, roleFilter, degree, currentDegree + 1, visited);
+            }
         }
 
-        // Initialize the network
-        function initNetwork() {
+        let network = null;
+
+        function updateNetwork(networkData) {
             const container = document.getElementById('network');
-            const data = { nodes: [], edges: [] };
+            container.innerHTML = ''; // Clear loading message
+
+            const nodes = new vis.DataSet(networkData.nodes);
+            const edges = new vis.DataSet(networkData.edges);
+
+            const data = { nodes: nodes, edges: edges };
             const options = {
                 nodes: {
                     shape: 'dot',
-                    size: 20,
+                    size: 16,
                     font: {
                         size: 14,
-                        color: '#ffffff',
-                        face: 'Segoe UI'
+                        color: '#ffffff'
                     },
-                    borderWidth: 2,
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.3)',
-                        size: 5,
-                        x: 2,
-                        y: 2
-                    }
+                    borderWidth: 2
                 },
                 edges: {
                     width: 2,
-                    color: {
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        highlight: 'rgba(255, 215, 0, 0.8)'
+                    color: { color: '#aaa', highlight: '#ffd700' },
+                    arrows: {
+                        to: { enabled: false }
+                    },
+                    font: {
+                        color: '#ffd700',
+                        align: 'middle'
                     },
                     smooth: {
-                        enabled: true,
                         type: 'continuous'
-                    },
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.1)',
-                        size: 2
                     }
                 },
                 physics: {
-                    enabled: true,
-                    stabilization: { iterations: 150 },
+                    stabilization: true,
                     barnesHut: {
-                        gravitationalConstant: -8000,
-                        centralGravity: 0.3,
-                        springLength: 120,
-                        springConstant: 0.04
+                        gravitationalConstant: -3000,
+                        springLength: 150,
+                        springConstant: 0.05,
+                        damping: 0.09
                     }
                 },
                 interaction: {
                     hover: true,
-                    selectConnectedEdges: false
-                },
-                layout: {
-                    improvedLayout: true
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
                 }
             };
 
-            network = new vis.Network(container, data, options);
-            
-            // Add click event listener
-            network.on('click', function(params) {
-                if (params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    showArtistInfo(nodeId);
-                }
-            });
-        }
+            if (network) {
+                network.setData(data);
+            } else {
+                network = new vis.Network(container, data, options);
 
-        // Generate network based on selected artist and filters
-        async function generateNetwork() {
-            const selectedArtist = document.getElementById('artistSelect').value;
-            const roleFilter = document.getElementById('roleFilter').value;
-            const degrees = parseInt(document.getElementById('degreeSlider').value);
-            const artistName = document.querySelector(`option[value="${selectedArtist}"]`).textContent;
+                network.on('click', async function (params) {
+    if (params.nodes.length > 0) {
+        const selectedNode = params.nodes[0];
+        showArtistInfo(selectedNode);
 
-            // Disable button during generation
-            const generateBtn = document.getElementById('generateNetwork');
-            generateBtn.disabled = true;
+        // Also regenerate network with clicked node as seed artist
+        // Get current role filter and degree
+        const roleFilter = document.getElementById('roleFilter').value;
+        const degree = parseInt(document.getElementById('degreeSlider').value);
 
-            // Show loading state
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading';
-            loadingDiv.textContent = useRealAPI ? 'Fetching live data from Discogs' : 'Generating network';
-            document.getElementById('network').appendChild(loadingDiv);
+        // Disable button to prevent multiple clicks during loading
+        const button = document.getElementById('generateNetwork');
+        button.disabled = true;
+        button.textContent = 'Loading...';
 
-            try {
-                // Fetch real data if we don't have it and API is enabled
-                if (!sampleData[selectedArtist]) {
-                    if (useRealAPI) {
-                        sampleData[selectedArtist] = await fetchArtistData(artistName);
-                    } else {
-                        sampleData[selectedArtist] = fallbackData[selectedArtist] || { name: artistName, collaborations: [] };
-                    }
-                }
-                
-                const networkData = buildNetworkData(selectedArtist, roleFilter, degrees);
-                updateNetwork(networkData);
-                
-                if (useRealAPI) {
-                    showStatusMessage('Network generated successfully!', 'status');
-                }
-            } catch (error) {
-                console.error('Error generating network:', error);
-                showStatusMessage('Error generating network: ' + error.message, 'error');
-            } finally {
-                loadingDiv.remove();
-                generateBtn.disabled = false;
+        // Clear old network data
+        sampleData = {};
+        document.getElementById('network').innerHTML = '<div class="loading">Loading network...</div>';
+        
+        await buildNetworkData(selectedNode, roleFilter, degree);
+        updateNetwork(sampleData);
+
+        // Re-enable button
+        button.disabled = false;
+        button.textContent = 'Generate Network';
+    }
+});
             }
         }
 
-        // Build network data from sample data
-        function buildNetworkData(seedArtist, roleFilter, degrees) {
-            const nodes = [];
-            const edges = [];
-            const processedArtists = new Set();
-            const artistQueue = [{ id: seedArtist, degree: 0 }];
-
-            // Color scheme for different artist types
-            const colors = {
-                seed: { background: '#ff6b6b', border: '#ff5252' },
-                primary: { background: '#4ecdc4', border: '#26a69a' },
-                secondary: { background: '#ffd700', border: '#ffc107' }
-            };
-
-            while (artistQueue.length > 0) {
-                const current = artistQueue.shift();
-                
-                if (processedArtists.has(current.id) || current.degree > degrees) {
-                    continue;
-                }
-
-                const artistData = sampleData[current.id];
-                if (!artistData) continue;
-
-                processedArtists.add(current.id);
-
-                // Add node
-                const nodeColor = current.degree === 0 ? colors.seed : 
-                                current.degree === 1 ? colors.primary : colors.secondary;
-                                
-                nodes.push({
-                    id: current.id,
-                    label: artistData.name,
-                    color: nodeColor,
-                    size: current.degree === 0 ? 30 : 20 - (current.degree * 3),
-                    font: { size: current.degree === 0 ? 16 : 14 }
-                });
-
-                // Process collaborations
-                if (current.degree < degrees) {
-                    artistData.collaborations.forEach(collab => {
-                        // Apply role filter
-                        if (roleFilter !== 'all' && collab.type !== roleFilter && 
-                            !collab.type.includes(roleFilter)) {
-                            return;
-                        }
-
-                        const collabId = collab.artist.toLowerCase().replace(/\s+/g, '-');
-                        
-                        // Add collaboration to queue if we have data for them
-                        if (sampleData[collabId] && !processedArtists.has(collabId)) {
-                            artistQueue.push({ id: collabId, degree: current.degree + 1 });
-                        }
-
-                        // Add edge
-                        edges.push({
-                            from: current.id,
-                            to: collabId,
-                            label: collab.type,
-                            title: `${collab.album} (${collab.type})`
-                        });
-                    });
-                }
-            }
-
-            return { nodes, edges };
-        }
-
-        // Update the network with new data
-        function updateNetwork(data) {
-            currentData = data;
-            network.setData(data);
-            network.fit();
-        }
-
-        // Show artist information panel
-        function showArtistInfo(artistId) {
-            const artistData = sampleData[artistId];
-            if (!artistData) return;
-
-            document.getElementById('defaultInfo').style.display = 'none';
-            document.getElementById('artistInfo').classList.add('active');
-            
-            document.getElementById('selectedArtistName').textContent = artistData.name;
-            
+        function showArtistInfo(artistName) {
+            const infoPanel = document.getElementById('artistInfo');
+            const defaultInfo = document.getElementById('defaultInfo');
+            const artistNameEl = document.getElementById('selectedArtistName');
             const collaborationsList = document.getElementById('collaborationsList');
+            const artistDetails = document.getElementById('artistDetails');
+
+            defaultInfo.style.display = 'none';
+            infoPanel.classList.add('active');
+            artistNameEl.textContent = artistName;
             collaborationsList.innerHTML = '';
-            
+            artistDetails.innerHTML = '';
+
+            const artistData = sampleData[artistName];
+            if (!artistData) {
+                artistDetails.textContent = 'No data available for this artist.';
+                return;
+            }
+
+            if (artistData.collaborations.length === 0) {
+                collaborationsList.innerHTML = '<p>No collaborations found.</p>';
+                return;
+            }
+
             artistData.collaborations.forEach(collab => {
                 const collabDiv = document.createElement('div');
                 collabDiv.className = 'collaboration';
-                collabDiv.innerHTML = `
-                    <strong>${collab.artist}</strong><br>
-                    <small>${collab.type} • ${collab.album}</small>
-                `;
+                collabDiv.textContent = `${collab.artist} (${collab.type})`;
                 collaborationsList.appendChild(collabDiv);
             });
         }
 
-        // Event listeners
         document.getElementById('generateNetwork').addEventListener('click', generateNetwork);
-        
-        document.getElementById('degreeSlider').addEventListener('input', function(e) {
+
+        // Update degree value label on slider change
+        document.getElementById('degreeSlider').addEventListener('input', (e) => {
             document.getElementById('degreeValue').textContent = e.target.value;
-        });
-
-        document.getElementById('saveToken').addEventListener('click', function() {
-            const token = document.getElementById('apiToken').value.trim();
-            if (token) {
-                apiToken = token;
-                useRealAPI = true;
-                showStatusMessage('API token saved! Now using live Discogs data.', 'status');
-                // Clear existing sample data to force API calls
-                sampleData = {};
-            } else {
-                apiToken = null;
-                useRealAPI = false;
-                sampleData = { ...fallbackData };
-                showStatusMessage('Using demo data (no API token provided).', 'status');
-            }
-        });
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize with fallback data
-            sampleData = { ...fallbackData };
-            initNetwork();
-            generateNetwork(); // Generate initial network
         });
     </script>
 </body>
